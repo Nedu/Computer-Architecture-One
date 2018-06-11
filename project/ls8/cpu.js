@@ -17,7 +17,6 @@ class CPU {
         
         // Special-purpose registers
         this.PC = 0; // Program Counter
-        this.tick()
     }
     
     /**
@@ -71,7 +70,7 @@ class CPU {
         // right now.)
 
         // !!! IMPLEMENT ME
-        let IR = this.reg.read(this.PC);
+        let IR = this.ram.read(this.PC);
 
         // Debugging output
         // console.log(`${this.PC}: ${IR.toString(2)}`);
@@ -88,7 +87,18 @@ class CPU {
 
         // !!! IMPLEMENT ME
         switch(IR){
-            
+            case 0b10011001:
+                this.reg[operandA] = operandB
+                break;
+            case 0b01000011:
+                console.log(this.reg[operandA]);
+                break;
+            case 0b00000001:
+                this.stopClock();
+                break;
+            default:
+                console.log('Error! Try Again!');
+                this.stopClock();
         }
 
         // Increment the PC register to go to the next instruction. Instructions
@@ -97,6 +107,7 @@ class CPU {
         // for any particular instruction.
         
         // !!! IMPLEMENT ME
+        this.PC += (IR >> 6) + 1;
     }
 }
 

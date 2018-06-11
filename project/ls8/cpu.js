@@ -56,6 +56,7 @@ class CPU {
         switch (op) {
             case 'MUL':
                 // !!! IMPLEMENT ME
+                this.reg[regA] *= this.reg[regB];
                 break;
         }
     }
@@ -95,6 +96,9 @@ class CPU {
                 break;
             case 0b00000001:
                 this.stopClock();
+                break;
+            case 0b10101010:
+                this.alu('MUL', operandA, operandB);
                 break;
             default:
                 console.log('Error! Try Again!');

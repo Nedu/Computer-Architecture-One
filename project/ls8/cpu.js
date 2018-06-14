@@ -1,7 +1,7 @@
 /**
  * LS-8 v2.0 emulator skeleton code
  */
-
+const SP = 7;
 /**
  * Class for simulating a simple Computer (CPU & memory)
  */
@@ -17,6 +17,7 @@ class CPU {
         
         // Special-purpose registers
         this.PC = 0; // Program Counter
+        this.reg[SP] = 0xF4; 
     }
     
     /**
@@ -99,6 +100,14 @@ class CPU {
                 break;
             case 0b10101010:
                 this.alu('MUL', operandA, operandB);
+                break;
+            case 0b1001101: //push
+                this.reg[SP]--;
+                this.ram.write(this.reg[SP], this.reg[operandA]);
+                break;
+            case 0b01001100: //pop
+                this.reg[operandA] = this.ram.read(this.reg[SP]);
+                this.reg[SP]++;
                 break;
             default:
                 console.log('Error! Try Again!');

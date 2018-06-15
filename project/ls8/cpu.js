@@ -18,6 +18,7 @@ class CPU {
         // Special-purpose registers
         this.PC = 0; // Program Counter
         this.reg[SP] = 0xF4; 
+        this.FL = 0; // Flags
     }
     
     /**
@@ -71,6 +72,11 @@ class CPU {
                     process.exit(1);
                 }
                 this.reg[regA] /= this.reg[regB];
+                break;
+            case 'CMP':
+                this.reg[regA] === this.reg[regB]? this.FL = 0b00000001 : this.FL = 0b00000000;
+                this.reg[regA] < this.reg[regB]? this.FL = 0b00000100 : this.FL = 0b00000000;
+                this.reg[regA] > this.reg[regB]? this.FL = 0b00000010 : this.FL = 0b00000000;
                 break;
         }
     }
@@ -136,6 +142,9 @@ class CPU {
                 this.reg[SP]--;
                 this.ram.write(this.reg[SP], this.PC + 2);
                 this.PC = this.reg[operandA];
+                break;
+            case 0b10100000: //CMP
+                this.alu('CMP', operandA, operandB);
                 break;
             default:
                 console.log('Error! Try Again!');

@@ -18,7 +18,7 @@ class CPU {
         // Special-purpose registers
         this.PC = 0; // Program Counter
         this.reg[SP] = 0xF4; 
-        this.FL = 0; // Flags
+        this.FL = 0b00000000; // Flags
     }
     
     /**
@@ -74,9 +74,15 @@ class CPU {
                 this.reg[regA] /= this.reg[regB];
                 break;
             case 'CMP':
-                this.reg[regA] === this.reg[regB]? this.FL = 0b00000001 : this.FL = 0b00000000;
-                this.reg[regA] < this.reg[regB]? this.FL = 0b00000100 : this.FL = 0b00000000;
-                this.reg[regA] > this.reg[regB]? this.FL = 0b00000010 : this.FL = 0b00000000;
+                if(this.reg[regA] === this.reg[regB]) {
+                    this.FL = 0b00000001;
+                } else if(this.reg[regA] < this.reg[regB]) {
+                    this.FL = 0b00000100;
+                } else if(this.reg[regA] > this.reg[regB]) {
+                    this.FL = 0b00000010;
+                } else {
+                    this.FL = 0b00000000;
+                }
                 break;
         }
     }
@@ -94,7 +100,7 @@ class CPU {
         let IR = this.ram.read(this.PC);
 
         // Debugging output
-        console.log(`${this.PC}: ${IR.toString(2)}`);
+        // console.log(`${this.PC}: ${IR.toString(2)}`);
 
         // Get the two bytes in memory _after_ the PC in case the instruction
         // needs them.
@@ -146,6 +152,25 @@ class CPU {
             case 0b10100000: //CMP
                 this.alu('CMP', operandA, operandB);
                 break;
+            case 0b01010000: //JMP
+                this.PC = this.reg[operandA];
+                break;
+            case 0b01010001: //JEQ
+                if(this.FL & 0b00000001) {
+                    this.PC = this.reg[operandA];
+                }
+                else {
+                    this.PC += 2;
+                }
+                break;
+            case 0b01010010: // JNE
+                if(~this.FL & 0b00000001) {
+                    this.PC = this.reg[operandA];
+                }
+                else {
+                    this.PC += 2;
+                }
+                break;
             default:
                 console.log('Error! Try Again!');
                 this.stopClock();
@@ -157,7 +182,7 @@ class CPU {
         // for any particular instruction.
         
         // !!! IMPLEMENT ME
-        if(IR !== 0b00001001 && IR !== 0b01001000) {
+        if(IR !== 0b00001001 && IR !== 0b01001000 && IR!== 0b01010000 && IR!== 0b01010010 && IR!== 0b01010001) {
             this.PC += (IR >> 6) + 1;
         }
     }

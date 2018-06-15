@@ -59,6 +59,19 @@ class CPU {
                 // !!! IMPLEMENT ME
                 this.reg[regA] *= this.reg[regB];
                 break;
+            case 'ADD':
+                this.reg[regA] += this.reg[regB];
+                break;
+            case 'AND':
+                this.reg[regA] = this.reg[regA] && this.reg[regB];
+                break;
+            case 'DIV':
+                if(this.reg[regB] === 0) {
+                    console.log('Error! Cannot divide by 0');
+                    process.exit(1);
+                }
+                this.reg[regA] /= this.reg[regB];
+                break;
         }
     }
 
@@ -75,7 +88,7 @@ class CPU {
         let IR = this.ram.read(this.PC);
 
         // Debugging output
-        // console.log(`${this.PC}: ${IR.toString(2)}`);
+        console.log(`${this.PC}: ${IR.toString(2)}`);
 
         // Get the two bytes in memory _after_ the PC in case the instruction
         // needs them.
@@ -101,6 +114,12 @@ class CPU {
             case 0b10101010:
                 this.alu('MUL', operandA, operandB);
                 break;
+            case 0b10101000 :
+                this.alu('ADD', operandA, operandB);
+                break;
+            case 0b10101011:
+                this.alu('DIV', operandA, operandB);
+                break;
             case 0b1001101: //push
                 this.reg[SP]--;
                 this.ram.write(this.reg[SP], this.reg[operandA]);
@@ -108,6 +127,15 @@ class CPU {
             case 0b01001100: //pop
                 this.reg[operandA] = this.ram.read(this.reg[SP]);
                 this.reg[SP]++;
+                break;
+            case 0b00001001: //RET
+                this.PC = this.ram.read(this.reg[SP]);
+                this.reg[SP]++;
+                break;
+            case 0b01001000: //CALL
+                this.reg[SP]--;
+                this.ram.write(this.reg[SP], this.PC + 2);
+                this.PC = this.reg[operandA];
                 break;
             default:
                 console.log('Error! Try Again!');
@@ -120,7 +148,9 @@ class CPU {
         // for any particular instruction.
         
         // !!! IMPLEMENT ME
-        this.PC += (IR >> 6) + 1;
+        if(IR !== 0b00001001 && IR !== 0b01001000) {
+            this.PC += (IR >> 6) + 1;
+        }
     }
 }
 
